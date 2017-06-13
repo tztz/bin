@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#
+# Executes 'git checkout master'.
+#
+# @author mvz
+#
+
+if [[ "$(git_has_branch master)" == 'false' ]]; then
+	echo "Repository has no master branch. Exiting."
+    exit 1
+fi
+
+git checkout master

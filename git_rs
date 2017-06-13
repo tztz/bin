@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#
+# Recursively executes 'git_s' for the given path.
+#
+# Call with option '-a' to print out the status no matter
+# whether the repo is up-to-date or not.
+#
+# @author mvz
+#
+
+ALL_FLAG="$1" # can be '-a'
+DIR="$2"
+
+if [[ "$ALL_FLAG" != '-a' ]]; then
+	# If first argument is not the 'all flag' ('-a') then it has to be the path
+	ALL_FLAG=""
+	DIR="$1"
+fi
+
+if [[ "${DIR}" == "" ]]; then
+	DIR="."
+fi
+
+find "${DIR}" -type d -name ".git" -print0 | xargs -0 -I "$[THE_REPO]" git_s "$ALL_FLAG" "$[THE_REPO]"

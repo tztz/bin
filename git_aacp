@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#
+# Executes 'git add --all', then commits with the given message ($@),
+# then pushes.
+#
+# Note: Do not surround the message in quotes.
+#
+# @author mvz
+#
+
+COMMIT_MESSAGE="$@"
+git_aac "${COMMIT_MESSAGE}" && git push
+unset COMMIT_MESSAGE

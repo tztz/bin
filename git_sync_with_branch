@@ -1,0 +1,53 @@
+#!/bin/sh
+
+#
+# Merges the current branch into the given branch (aka peer branch) and
+# vice-versa after updating (i.e. pulling) both branches. The merged
+# branches are pushed afterwards.
+#
+# @author mvz
+#
+
+function listAvailableBranches {
+	echo "Available branches are:"
+	git branch
+}
+
+if [ "$(git_is_repo)" != 'true' ]; then
+	echo "Not in a Git repository."
+	exit 1
+fi
+
+PEER_BRANCH="$1"
+
+if [ "${PEER_BRANCH}" == '' ]; then
+	echo "Specify the branch to sync with."
+	listAvailableBranches
+	exit 1
+fi
+
+if [ $(git_has_branch "${PEER_BRANCH}") == 'false' ]; then
+	echo "No local branch named '${PEER_BRANCH}' available."
+	listAvailableBranches
+	exit 1
+fi
+
+MY_CURRENT_BRANCH="`git_br`"
+
+if [ "${MY_CURRENT_BRANCH}" == "${PEER_BRANCH}" ]; then
+	echo "You are on branch '${PEER_BRANCH}'. Specify a different branch."
+	listAvailableBranches
+	exit 1
+fi
+
+IFS=$'\n'
+read -p "Are you sure? (type YES and hit [ENTER] if so) " -n 4 REPLY
+echo # newline
+if [[ $REPLY =~ ^YES$ ]]
+then
+	echo "Going to bidirectionally sync branches '${MY_CURRENT_BRANCH}' and '${PEER_BRANCH}'..."
+	echo "On branch '${MY_CURRENT_BRANCH}'"
+	git pull && git checkout "${PEER_BRANCH}" && git pull && git merge "${MY_CURRENT_BRANCH}" && git push && git checkout "${MY_CURRENT_BRANCH}" && git merge "${PEER_BRANCH}" && git push
+else
+	echo "Aborting. Bye."
+fi

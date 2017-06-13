@@ -1,0 +1,12 @@
+#!/bin/sh
+
+#
+# Deletes (with --force) a branch locally and on the origin remote.
+#
+# $1 - Branch name.
+#
+# @author mvz
+#
+
+git branch --delete --force "$1"
+git push origin --delete "$1"

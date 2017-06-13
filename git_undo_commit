@@ -1,0 +1,9 @@
+#!/bin/sh
+
+#
+# Undos the last commit but does not throw away the changes.
+#
+# @author mvz
+#
+
+git reset --soft HEAD^

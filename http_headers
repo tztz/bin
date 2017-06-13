@@ -1,0 +1,13 @@
+#!/bin/sh
+
+#
+# Gets the HTTP headers of $1 and prints them.
+#
+# Stolen from Ryan Tomayko
+# http://github.com/rtomayko/dotfiles/blob/rtomayko/bin/git-up
+#
+
+curl -sv "$@" 2>&1 >/dev/null |
+  grep -v "^\*" |
+  grep -v "^}" |
+  cut -c3-

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+#
+# Prints out the fingerprint of the given SSH key in MD5 format.
+#
+# @author mvz
+#
+
+ssh-keygen -E md5 -lf "$1"

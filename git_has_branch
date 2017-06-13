@@ -1,0 +1,24 @@
+#!/bin/bash
+
+#
+# Returns 'true' if you are in a Git repo having the given branch;
+# 'false' otherwise. If no branch is given the 'master' branch is taken.
+#
+# @author mvz
+#
+
+THE_BRANCH="$1"
+
+if [ "$THE_BRANCH" == '' ]; then
+	THE_BRANCH='master'
+fi
+
+if [ $(git_is_repo) == 'true' ]; then
+	result=`git branch | grep -E -c "^\*?[[:space:]]*$THE_BRANCH$"`
+	if [ "$result" == '1' ]; then
+		echo 'true'
+		exit 0
+	fi
+fi
+echo 'false'
+exit 1

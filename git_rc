@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#
+# Recursively executes 'git_c' for the given path.
+#
+# @author mvz
+#
+
+DIR="$1"
+
+if [[ "${DIR}" == "" ]]; then
+	DIR="."
+fi
+
+find "${DIR}" -type d -name ".git" -print0 | xargs -0 -I "$[THE_REPO]" git_c "$[THE_REPO]/.."

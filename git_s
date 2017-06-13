@@ -1,0 +1,46 @@
+#!/bin/bash
+
+#
+# Executes 'git status --porcelain' for the given path.
+#
+# Call with option '-a' to print out the status no matter
+# whether the repo is up-to-date or not.
+#
+# @author mvz
+#
+
+ALL_FLAG="$1" # can be '-a'
+DIR="$2"
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NO_COLOR='\033[0m'
+
+if [[ "$ALL_FLAG" != '-a' ]]; then
+	# If first argument is not the 'all flag' ('-a') then it has to be the path
+	ALL_FLAG=""
+	DIR="$1"
+	if [[ "$DIR" == '' ]]; then
+		DIR="$2"
+	fi
+fi
+
+if [[ "${DIR}" == "" ]]; then
+	DIR="."
+fi
+if [[ "$DIR" == *.git ]]; then
+	DIR="`dirname "$DIR"`"
+fi
+
+cd "$DIR"
+STATUS=`git status --short`
+
+if [[ "$STATUS" != "" || "$ALL_FLAG" == "-a" ]]; then
+	echo "`pwd`"
+	if [[ "$STATUS" != "" ]]; then
+		printf "${RED}$STATUS${NO_COLOR}\n"
+	else
+		printf "${GREEN}Up-to-date${NO_COLOR}\n"
+	fi
+	echo "-------------------------------------------------------------"
+fi

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+#
+# Finds (and prints to stdout) all symlinks in SRC_FOLDER ($1) (and
+# all its sub-folders recursively). Unless given, SRC_FOLDER defaults to
+# the current directory ('.').
+#
+# @author mvz
+#
+
+SRC_FOLDER="$1"
+if [[ "$SRC_FOLDER" == '' ]]; then
+	SRC_FOLDER='.'
+fi
+
+find "$SRC_FOLDER" -type l -ls

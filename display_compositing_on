@@ -1,0 +1,9 @@
+#!/bin/sh
+
+#
+# Turns on display compositing.
+#
+# @author mvz
+#
+
+xfconf-query -c xfwm4 -p /general/use_compositing -t bool -s true

@@ -1,0 +1,16 @@
+#!/bin/sh
+
+#
+# Games like e.g. Counter-Strike: Global Offensive (CS:GO) need to make
+# their heap memory executable. Probably this indicates a badly coded
+# executable, but could indicate an attack.
+# Anyway, to be able to play CS:GO and the like execute the following
+# command as root and pass 'selinuxuser_execheap 1'. In order to revert
+# to the default pass 'selinuxuser_execheap 0'.
+# This is non-permanent (does not survive reboot). Use the -P option to
+# make it permanent.
+#
+# @author mvz
+#
+
+sudo setsebool selinuxuser_execheap 0

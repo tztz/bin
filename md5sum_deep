@@ -1,0 +1,22 @@
+#!/bin/bash
+
+#
+# Calculates the accumulated checksum of all files (filename and
+# content are taken into account) in the given folder and all its
+# subfolders recursively. Folder names are not checksummed.
+#
+# @author mvz
+#
+
+if [ ! "$1" ]; then
+	DEST_PATH='.'
+else
+	DEST_PATH="$1"
+fi
+
+TMP_FILE_PREFIX="/tmp/md5sum_tmp_file_`date +%s`_"
+TMP_FILE_SUFFIX=".txt"
+TMP_FILE1="${TMP_FILE_PREFIX}1${TMP_FILE_SUFFIX}"
+TMP_FILE2="${TMP_FILE_PREFIX}2${TMP_FILE_SUFFIX}"
+
+find "$DEST_PATH" -type f -exec md5sum {} \; > $TMP_FILE1 && cat $TMP_FILE1 | awk '{print $1}' > $TMP_FILE2 && cat $TMP_FILE2 | wc -l >> $TMP_FILE2 && md5sum $TMP_FILE2 | grep -o "^\w*"

@@ -1,0 +1,51 @@
+#!/bin/bash
+
+#
+# Copies all squared images from SRC_FOLDER (and all its sub-folders
+# recursively) to DEST_FOLDER. The destination folder will contain all
+# pics flattened. Unless given, SRC_FOLDER defaults to the current
+# directory.
+#
+# DEST_FOLDER must not exist and will be created (via mkdir).
+# Exits immediately without copying anything if DEST_FOLDER already
+# exists. Unless given, DEST_FOLDER defaults to /tmp/all_squared_pics/
+#
+# No files will be overridden. Existing files in DEST_FOLDER will be
+# renamed (a number suffix is appended) before copying.
+#
+# @author mvz
+#
+
+SRC_FOLDER="."
+if [ -d "$1" -a -r "$1" ] ; then
+	SRC_FOLDER="$1"
+fi
+
+CURRENT_TIMESTAMP="$(date +"%Y%m%d_%H%M%S")"
+DEST_FOLDER="/tmp/all_squared_pics/${CURRENT_TIMESTAMP}/"
+#DEST_FOLDER="/tmp/all_squared_pics/20160818_145959"
+
+if [ -d "$2" -a -w "$2" ] ; then
+	DEST_FOLDER="$2"
+fi
+
+if [ -e "$DEST_FOLDER" ] ; then
+	echo "Error: Destination folder already exists. Bye."
+	exit 1
+fi
+
+mkdir -p $DEST_FOLDER
+
+if [ ! -e "$DEST_FOLDER" ] ; then
+	echo "Error: Could not mkdir destination folder. Bye."
+	exit 1
+fi
+
+echo "Going to copy all squared images in $SRC_FOLDER (and all its sub-folders recursively) to $DEST_FOLDER"
+
+# Make sure to use original cp:
+unalias cp 2>/dev/null
+
+#find "$SRC_FOLDER" -iname "*.jpg" -print0 | xargs -0 identify -format "%[fx:(w/h)]:%M\n" | grep "^1:" | sed s/^1://g | tr '\n' '\0' | xargs -0 -I "$[thefilename]" cp --backup=t "$[thefilename]" "$DEST_FOLDER"
+#find "$SRC_FOLDER" -iname "*.jpg" -print0 | xargs -0 identify -format "%[fx:(w/h)]:%M\n" | grep "^1:" | sed s/^1://g | tr '\n' '\0' | xargs -0 -I "$[thefilename]" echo "$[thefilename] -> $DEST_FOLDER"
+find_images "$SRC_FOLDER" | xargs -d "\n" identify -format "%[fx:(w/h)]:%M\n" | grep "^1:" | sed s/^1://g | tr '\n' '\0' | xargs -0 -I "$[thefilename]" echo "$[thefilename] -> $DEST_FOLDER"

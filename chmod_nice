@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#
+# Recursively performs chmod, setting '755' for directories and '644'
+# for regular files.
+#
+# @author mvz
+#
+
+read -p "Are you sure? (y/N)" -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+	echo "Recursively performing chmod..."
+	find . -type d -exec chmod 755 "{}" \;
+	find . -type f -exec chmod 644 "{}" \;
+else
+	echo "Aborting. Bye."
+fi

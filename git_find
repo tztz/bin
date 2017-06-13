@@ -1,0 +1,68 @@
+#!/bin/bash
+
+#
+# Searches in all branches for all files which filenames match the given
+# regex pattern and prints them to stdout.
+# If a second argument (again a regex pattern) is passed then only those
+# filenames are printed whose content match that pattern.
+#
+# Options:
+#    --remote     Search only remote branches.
+#				  Defaults to local branches.
+#
+# Original credit to
+# http://stackoverflow.com/questions/372506/how-can-i-search-git-branches-for-a-file-or-directory/372654#372654
+#
+# Usage: gitfind.sh [options] <filename regex> <file content regex>
+#
+# @author mvz
+#
+
+REF="$1"
+FILE_NAME_REGEX="$2"
+TEXT_REGEX="$3"
+
+if [[ "$REF" == '--remote' ]]; then
+	LOC=refs/remotes/origin  # search remote branches only
+else
+	LOC=refs/heads  # search local branches only
+	FILE_NAME_REGEX="$1"
+	TEXT_REGEX="$2"
+fi
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NO_COLOR='\033[0m'
+
+for branch in `git for-each-ref --format="%(refname)" $LOC`; do
+	found_files=$(git ls-tree -r --name-only $branch | grep -i "${FILE_NAME_REGEX}")
+	if [ $? -eq 0 ]; then
+		files=()
+		while read -r line; do
+			files+=("${line}")
+		done <<< "${found_files}"
+
+		echo
+		printf "${RED}"
+		echo "----------------------------------------"
+		echo "${branch#$LOC/}"
+		echo
+		printf "${GREEN}"
+		
+		for found_file in "${files[@]}"; do
+			found_text=$(cat ${found_file} 2>/dev/null | grep -i "${TEXT_REGEX}")		
+			if [ $? -eq 0 ]; then
+				echo "${found_file}"
+
+				if [[ "${TEXT_REGEX}" != '' ]]; then
+					printf "${NO_COLOR}"
+					echo 
+					echo "${found_text}"
+					printf "${GREEN}"
+					echo
+				fi
+			fi
+		done
+	fi
+done
+echo

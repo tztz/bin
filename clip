@@ -1,0 +1,9 @@
+#!/bin/bash
+
+#
+# Copies the content of the given file ($1) to the clipboard.
+#
+# @author mvz
+#
+
+cat "$1" | xclip -selection "clipboard"

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+#
+# Allow Mozilla plugins (e.g. Java) for the Firefox browser.
+# This is non-permanent (does not survive reboot). Use the -P option to
+# make it permanent.
+#
+# @author mvz
+#
+
+sudo setsebool unconfined_mozilla_plugin_transition 0

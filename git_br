@@ -1,0 +1,9 @@
+#!/bin/bash
+
+#
+# Displays/Returns the current branch name.
+#
+# @author mvz
+#
+
+git rev-parse --abbrev-ref HEAD
