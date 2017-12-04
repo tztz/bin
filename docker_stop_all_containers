@@ -1,0 +1,9 @@
+#!/bin/bash
+
+#
+# Stops all Docker containers.
+#
+# @author mvz
+#
+
+docker stop $(docker ps -a -q)

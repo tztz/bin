@@ -1,0 +1,9 @@
+#!/bin/bash
+
+#
+# Removes (i.e. deletes) all Docker images.
+#
+# @author mvz
+#
+
+docker rmi $(docker images -q)

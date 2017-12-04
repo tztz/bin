@@ -1,0 +1,9 @@
+#!/bin/bash
+
+#
+# Removes (i.e. deletes) all Docker containers.
+#
+# @author mvz
+#
+
+docker rm $(docker ps -a -q)
