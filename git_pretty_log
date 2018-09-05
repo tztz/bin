@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#
+# Pretty-prints the commit log of the last n commits (n defaults to 20).
+#
+# @author mvz
+#
+
+COUNT="$1"
+
+if [[ "${COUNT}" == "" ]]; then
+	COUNT=20
+fi
+
+git log --pretty=format:"%h - %an, %aI : %s" | head -${COUNT}
