@@ -1,0 +1,9 @@
+#!/bin/bash
+
+#
+# Removes all merged branches except master and the current one.
+#
+# @author mvz
+#
+
+git branch --merged | egrep -v "(^\*|master)" | xargs git branch -d
