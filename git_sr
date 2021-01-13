@@ -6,6 +6,8 @@
 # Call with option '-a' to print out the status no matter
 # whether the repo is up-to-date or not.
 #
+# Exclude yay's cache repos.
+#
 # @author mvz
 #
 
@@ -22,4 +24,4 @@ if [[ "${DIR}" == "" ]]; then
 	DIR="."
 fi
 
-find "${DIR}" -type d -name ".git" -print0 | xargs -0 -I "$[THE_REPO]" git_s "$ALL_FLAG" "$[THE_REPO]"
+find "${DIR}" -type d -path ./.cache/yay -prune -false -o -type d -name ".git" -print0 | xargs -0 -I "$[THE_REPO]" git_s "$ALL_FLAG" "$[THE_REPO]"
