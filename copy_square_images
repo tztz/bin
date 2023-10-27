@@ -10,8 +10,7 @@
 # Exits immediately without copying anything if DEST_FOLDER already
 # exists. Unless given, DEST_FOLDER defaults to /tmp/all_squared_pics/
 #
-# No files will be overridden. Existing files in DEST_FOLDER will be
-# renamed (a number suffix is appended) before copying.
+# No files will be overridden.
 #
 # @author mvz
 #

@@ -1,14 +1,14 @@
 #!/bin/bash
 
 #
-# Executes 'git checkout master'.
+# Executes 'git checkout main'.
 #
 # @author mvz
 #
 
-if [[ "$(git_has_branch master)" == 'false' ]]; then
-	echo "Repository has no master branch. Exiting."
+if [[ "$(git_has_branch main)" == 'false' ]]; then
+	echo "Repository has no main branch. Exiting."
     exit 1
 fi
 
-git checkout master
+git checkout main

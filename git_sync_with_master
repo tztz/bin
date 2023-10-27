@@ -1,11 +1,11 @@
 #!/bin/sh
 
 #
-# Merges the current branch into the 'master' branch and vice-versa
+# Merges the current branch into the 'main' branch and vice-versa
 # after updating (i.e. pulling) both branches. The merged branches are
 # pushed afterwards.
 #
 # @author mvz
 #
 
-git_sync_with_branch master
+git_sync_with_branch main
