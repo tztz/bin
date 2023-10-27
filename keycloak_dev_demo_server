@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#
+# Starts a Keycloak demo server as Docker container.
+#
+
 docker run --name mykeycloak -p 8084:8080 \
     -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin \
     quay.io/keycloak/keycloak:latest \
