@@ -1,3 +1,3 @@
-# My bin folder
+# bin
 
-Some of my useful scripts and utilities.
+Some useful scripts and utilities.
