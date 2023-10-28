@@ -1,3 +1,3 @@
 # bin
 
-Some useful scripts and utilities.
+Useful scripts and utilities.
