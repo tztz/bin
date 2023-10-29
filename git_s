@@ -44,7 +44,9 @@ fi
 
 if [[ "$STATUS" != "" || "$ALL_FLAG" == "-a" || $HAS_COMMITS_ON_ANY_BRANCH_NOT_YET_PUSHED == true ]]; then
 	echo "$(pwd)"
-	echo "Unpushed: ${HAS_COMMITS_ON_ANY_BRANCH_NOT_YET_PUSHED}"
+	if [[ $HAS_COMMITS_ON_ANY_BRANCH_NOT_YET_PUSHED == true]]; then
+		printf "${RED}Unpushed${NO_COLOR}\n"
+	fi
 	if [[ "$STATUS" != "" ]]; then
 		printf "${RED}$STATUS${NO_COLOR}\n"
 	else
