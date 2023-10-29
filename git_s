@@ -13,6 +13,7 @@ ALL_FLAG="$1" # can be '-a'
 DIR="$2"
 
 RED='\033[0;31m'
+ORANGE='\033[0;33m'
 GREEN='\033[0;32m'
 NO_COLOR='\033[0m'
 
@@ -43,9 +44,11 @@ if [[ "$(git status -sb)" == *"origin"* ]]; then
 fi
 
 if [[ "$STATUS" != "" || "$ALL_FLAG" == "-a" || $HAS_COMMITS_ON_ANY_BRANCH_NOT_YET_PUSHED == true ]]; then
-	echo "$(pwd)"
-	if [[ $HAS_COMMITS_ON_ANY_BRANCH_NOT_YET_PUSHED == true]]; then
-		printf "${RED}Unpushed${NO_COLOR}\n"
+	printf "$(pwd)"
+	if [[ $HAS_COMMITS_ON_ANY_BRANCH_NOT_YET_PUSHED == true ]]; then
+		printf "  -  ${ORANGE}unpushed${NO_COLOR}\n"
+	else
+		printf "\n"
 	fi
 	if [[ "$STATUS" != "" ]]; then
 		printf "${RED}$STATUS${NO_COLOR}\n"
