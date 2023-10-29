@@ -37,19 +37,22 @@ cd "$DIR"
 STATUS=`git status --short`
 
 HAS_COMMITS_ON_ANY_BRANCH_NOT_YET_PUSHED=false
+HAS_UPSTREAM_BRANCH=false
 # Check whether there is an upstream branch
 if [[ "$(git status -sb)" == *"origin"* ]]; then
+	HAS_UPSTREAM_BRANCH=true
 	# ... and if so, check whether there are commits on any branch not yet pushed
 	[ -z "$(git log --branches --not --remotes)" ] || HAS_COMMITS_ON_ANY_BRANCH_NOT_YET_PUSHED=true
 fi
 
 if [[ "$STATUS" != "" || "$ALL_FLAG" == "-a" || $HAS_COMMITS_ON_ANY_BRANCH_NOT_YET_PUSHED == true ]]; then
-	printf "$(pwd)"
+	printf "$(pwd)    "
 	if [[ $HAS_COMMITS_ON_ANY_BRANCH_NOT_YET_PUSHED == true ]]; then
-		printf "  -  ${ORANGE}unpushed${NO_COLOR}\n"
-	else
-		printf "\n"
+		printf "${ORANGE}unpushed${NO_COLOR}"
+	elif [[ $HAS_UPSTREAM_BRANCH == true ]]; then
+		printf "${GREEN}all pushed${NO_COLOR}"
 	fi
+	printf "\n"
 	if [[ "$STATUS" != "" ]]; then
 		printf "${RED}$STATUS${NO_COLOR}\n"
 	else
