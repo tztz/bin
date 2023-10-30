@@ -15,6 +15,7 @@ DIR="$2"
 RED='\033[0;31m'
 ORANGE='\033[0;33m'
 GREEN='\033[0;32m'
+BLUE='\033[0;34m'
 NO_COLOR='\033[0m'
 
 if [[ "$ALL_FLAG" != '-a' ]]; then
@@ -51,6 +52,8 @@ if [[ "$STATUS" != "" || "$ALL_FLAG" == "-a" || $HAS_COMMITS_ON_ANY_BRANCH_NOT_Y
 		printf "${ORANGE}unpushed${NO_COLOR}"
 	elif [[ $HAS_UPSTREAM_BRANCH == true ]]; then
 		printf "${GREEN}all pushed${NO_COLOR}"
+	elif [[ $HAS_UPSTREAM_BRANCH == false ]]; then
+		printf "${BLUE}no upstream${NO_COLOR}"
 	fi
 	printf "\n"
 	if [[ "$STATUS" != "" ]]; then
