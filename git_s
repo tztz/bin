@@ -49,9 +49,9 @@ fi
 if [[ "$STATUS" != "" || "$ALL_FLAG" == "-a" || $HAS_COMMITS_ON_ANY_BRANCH_NOT_YET_PUSHED == true ]]; then
 	printf "$(pwd)    "
 	if [[ $HAS_COMMITS_ON_ANY_BRANCH_NOT_YET_PUSHED == true ]]; then
-		printf "${ORANGE}unpushed${NO_COLOR}"
+		printf "${ORANGE}unpushed commits${NO_COLOR}"
 	elif [[ $HAS_UPSTREAM_BRANCH == true ]]; then
-		printf "${GREEN}all pushed${NO_COLOR}"
+		printf "${GREEN}all commits pushed${NO_COLOR}"
 	elif [[ $HAS_UPSTREAM_BRANCH == false ]]; then
 		printf "${BLUE}no upstream${NO_COLOR}"
 	fi
