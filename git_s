@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# Executes 'git status --porcelain' for the given path.
+# Executes 'git status -sb' for the given path.
 #
 # Call with option '-a' to print out the status no matter
 # whether the repo is up-to-date or not.
@@ -16,6 +16,7 @@ RED='\033[0;31m'
 ORANGE='\033[0;33m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
+GRAY='\033[1;30m'
 NO_COLOR='\033[0m'
 
 if [[ "$ALL_FLAG" != '-a' ]]; then
@@ -35,19 +36,27 @@ if [[ "$DIR" == *.git ]]; then
 fi
 
 cd "$DIR"
-STATUS=`git status --short`
+GIT_STATUS_RESULT="$(git status -sb)"
+LOCAL_COMMITS="$(echo "${GIT_STATUS_RESULT}" | tail -n +2)"
 
-HAS_COMMITS_ON_ANY_BRANCH_NOT_YET_PUSHED=false
 HAS_UPSTREAM_BRANCH=false
+HAS_COMMITS_ON_ANY_BRANCH_NOT_YET_PUSHED=false
+UPSTREAM_IS_AHEAD=false
+
 # Check whether there is an upstream branch
-if [[ "$(git status -sb)" == *"..."* ]]; then
+if [[ "${GIT_STATUS_RESULT}" == *"..."* ]]; then
 	HAS_UPSTREAM_BRANCH=true
-	# ... and if so, check whether there are commits on any branch not yet pushed
+	# ... and, if so, check whether there are commits on any branch not yet pushed
 	[ -z "$(git log --branches --not --remotes)" ] || HAS_COMMITS_ON_ANY_BRANCH_NOT_YET_PUSHED=true
+	# ... and check whether origin is ahead (there are upstream commits not yet pulled)
+	if [[ "${GIT_STATUS_RESULT}" == *"behind"* ]]; then
+		UPSTREAM_IS_AHEAD=true
+	fi
 fi
 
-if [[ "$STATUS" != "" || "$ALL_FLAG" == "-a" || $HAS_COMMITS_ON_ANY_BRANCH_NOT_YET_PUSHED == true ]]; then
+if [[ "$LOCAL_COMMITS" != "" || "$ALL_FLAG" == "-a" || $HAS_COMMITS_ON_ANY_BRANCH_NOT_YET_PUSHED == true || $UPSTREAM_IS_AHEAD == true ]]; then
 	printf "$(pwd)    "
+
 	if [[ $HAS_COMMITS_ON_ANY_BRANCH_NOT_YET_PUSHED == true ]]; then
 		printf "${ORANGE}unpushed commits${NO_COLOR}"
 	elif [[ $HAS_UPSTREAM_BRANCH == true ]]; then
@@ -55,11 +64,19 @@ if [[ "$STATUS" != "" || "$ALL_FLAG" == "-a" || $HAS_COMMITS_ON_ANY_BRANCH_NOT_Y
 	elif [[ $HAS_UPSTREAM_BRANCH == false ]]; then
 		printf "${BLUE}no upstream${NO_COLOR}"
 	fi
+
+	if [[ $UPSTREAM_IS_AHEAD == true ]]; then
+		printf "    "
+		printf "${ORANGE}upstream is ahead${NO_COLOR}"
+	fi
+
 	printf "\n"
-	if [[ "$STATUS" != "" ]]; then
-		printf "${RED}$STATUS${NO_COLOR}\n"
+
+	if [[ "$LOCAL_COMMITS" != "" ]]; then
+		printf "${RED}$LOCAL_COMMITS${NO_COLOR}\n"
 	else
 		printf "${GREEN}Up-to-date${NO_COLOR}\n"
 	fi
-	echo "-------------------------------------------------------------"
+
+	printf "${GRAY}----------------------------------------------------------------------------------------------------------${NO_COLOR}\n"
 fi
