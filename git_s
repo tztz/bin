@@ -36,9 +36,10 @@ if [[ "$DIR" == *.git ]]; then
 fi
 
 cd "$DIR"
+
 # Uncomment the next line to fetch from all of your configured remotes (but not merge any changes in)
 #git fetch --all
-#
+
 GIT_STATUS_RESULT="$(git status -sb)"
 LOCAL_COMMITS="$(echo "${GIT_STATUS_RESULT}" | tail -n +2)"
 
