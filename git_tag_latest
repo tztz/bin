@@ -1,0 +1,9 @@
+#!/bin/bash
+
+#
+# Prints the latest tag of the branch.
+#
+# @author mvz
+#
+
+git describe --tags --abbrev=0
