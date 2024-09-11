@@ -1,11 +1,16 @@
 #!/bin/bash
 
 #
-# Creates a tag and pushes it.
+# Creates a tag with the given name and pushes it.
 #
 # @author mvz
 #
 
 tag="${1}"
+
+if [[ "$tag" == '' ]]; then
+	echo "Please pass a tag name. Aborting."
+	exit 1
+fi
 
 git tag $tag && git push origin tag $tag
