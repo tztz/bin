@@ -6,7 +6,13 @@
 # @author mvz
 #
 
+current_branch=$(git_br)
 tag="${1}"
+
+if [[ "${current_branch}" != "main" ]]; then
+    echo "Not on main branch. Aborting."
+	exit 1
+fi
 
 if [[ "$tag" == '' ]]; then
 	echo "Please pass a tag name. Aborting."
