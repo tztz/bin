@@ -1,12 +1,18 @@
 #!/bin/bash
 
 #
-# Finds all files containing the specified string (regex) in the given folder and all sub folders recursively.
+# Finds and prints all files containing the specified string (regex) in
+# the given folder and all sub folders recursively.
+#
+# If no folder is passed the current directory (".") and all its sub folders
+# are searched.
 #
 # @author mvz
 #
 
-path=${1}
-regex=${2}
+regex=${1}
+path=${2:-"."}
 
-grep -Rnw ${path} -e "${regex}"
+echo "Searching for regexp /${regex}/ in directory ${path}"
+
+grep -Rnwi ${path} -e "${regex}"
