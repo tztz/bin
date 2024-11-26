@@ -1,0 +1,13 @@
+#/bin/bash
+
+#
+# Starts the Cloud SQL proxy for the given database in the given stage and region on the given port.
+#
+
+db=${1:-my-foo-db}
+env=${2:-dev}
+region=${3:-europe-west1}
+port=${4:-15432}
+
+echo "Starting Cloud SQL proxy for '${db}' DB in '$env' stage (region '${region}') on port ${port}..."
+cloud-sql-proxy --address=127.0.0.1 --gcloud-auth=true --port=$port $env:$region:$db
