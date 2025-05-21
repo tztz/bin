@@ -1,0 +1,9 @@
+#!/bin/bash
+
+#
+# Shortcut for apt update/upgrade
+#
+# @author mvz
+#
+
+sudo apt update && sudo apt upgrade
