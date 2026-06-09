@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#
+# Shortcut for updating all apps, global packages, snaps, etc.
+#
+# @author mvz
+#
+
+echo ">>>>> Updating apt packages..."
+apt_up
+echo ">>>>> Updating devbox global packages..."
+devbox_up
+echo ">>>>> Updating snap packages..."
+sudo snap refresh

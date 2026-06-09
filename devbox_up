@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#
+# Shortcut for updating devbox global packages
+#
+# @author mvz
+#
+
+devbox global update
+refresh-global
