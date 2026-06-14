@@ -14,6 +14,8 @@
 #
 # Run this script with the -h flag for usage information and further details.
 #
+# @author mvz
+#
 
 set -euo pipefail
 
@@ -69,6 +71,8 @@ Exit codes:
   4  Response contained no access_token
   5  A required command (curl or jq) is not installed
   6  Could not reach the token endpoint (network-level failure)
+
+Made with love by mvz.
 EOF
 }
 
