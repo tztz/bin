@@ -1,0 +1,194 @@
+#!/bin/bash
+
+#
+# Fetch and echo a JWT token for the specified context, realm, client id and stage.
+#
+# The JWT token is obtained by making a POST request to the OIDC token endpoint using the
+# client credentials flow.
+#
+# Context, realm, client id and stage are provided via short flags.
+# For any omitted flag default values are taken.
+#
+# Certain environment variables are expected to be set based on the provided flags.
+# The script will error if any required environment variable is missing.
+#
+# Run this script with the -h flag for usage information and further details.
+#
+
+set -euo pipefail
+
+# Verify required tooling is available early
+for cmd in curl jq; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "Error: required command '$cmd' not found." >&2
+    exit 5
+  fi
+done
+
+context="RD"
+realm=""
+client_id=""
+stage="dev"
+quiet="false"
+
+USAGE_MSG="Usage: $0 [-c context] [-r realm] [-i client_id] [-s stage] [-q] [-h]"
+
+usage() {
+  echo "${USAGE_MSG}" >&2
+}
+
+help() {
+  cat <<EOF
+Fetch and echo a JWT token from an OIDC token endpoint (client credentials flow).
+
+${USAGE_MSG}
+
+Options (omitted flags keep their defaults):
+  -c <context>    Context to use (default: RD)
+  -r <realm>      Realm to use (default: \$<CONTEXT>_STANDARD_REALM)
+  -i <client id>  Client id to use (default: \$<CONTEXT>_STANDARD_CLIENT_ID)
+                  (<CONTEXT> is the uppercased -c value, e.g. RD)
+  -s <stage>      Stage to use (default: DEV)
+  -q              Quiet mode: suppress the progress message on stderr
+                  (the token is always printed alone on stdout)
+  -h              Show this help and exit
+
+Required environment variables (built from the values above):
+  {CONTEXT}_{REALM}_{CLIENT_ID}_OIDC_TOKEN_URL_{STAGE}
+  {CONTEXT}_{REALM}_{CLIENT_ID}_OIDC_TOKEN_CLIENT_ID_{STAGE}
+  {CONTEXT}_{REALM}_{CLIENT_ID}_OIDC_TOKEN_CLIENT_SECRET_{STAGE}
+
+Example:
+  RD_PROD80_MILA_ATP_OIDC_TOKEN_URL_DEV
+
+Exit codes:
+  0  Success
+  1  Invalid usage (missing flag value, unknown option, or missing required value)
+  2  A required environment variable is not set
+  3  Token endpoint returned a non-200 HTTP status
+  4  Response contained no access_token
+  5  A required command (curl or jq) is not installed
+  6  Could not reach the token endpoint (network-level failure)
+EOF
+}
+
+# Parse short flags; omitted flags keep their defaults above.
+while getopts ":c:r:i:s:qh" opt; do
+  case "$opt" in
+    c) context="$OPTARG" ;;
+    r) realm="$OPTARG" ;;
+    i) client_id="$OPTARG" ;;
+    s) stage="$OPTARG" ;;
+    q) quiet="true" ;;
+    h) help; exit 0 ;;
+    :) echo "Error: option -$OPTARG requires an argument." >&2; usage; exit 1 ;;
+    \?) echo "Error: unknown option -$OPTARG." >&2; usage; exit 1 ;;
+  esac
+done
+shift "$((OPTIND - 1))"
+
+check_required() {
+  local name="$1"
+  local value="$2"
+  if [[ -z "$value" ]]; then
+    echo "Error: $name not provided." >&2
+    usage
+    exit 1
+  fi
+}
+
+check_required "context" "$context"
+
+# The context is fixed once flags are parsed; sanitize and uppercase it so it forms a valid
+# Bash variable name (hyphens, dots, etc. become underscores)
+context_key="${context//[^a-zA-Z0-9]/_}"
+context_key="${context_key^^}"
+
+# If realm or client id were not supplied via flags, fall back to the
+# context-specific defaults: ${CONTEXT}_STANDARD_REALM and ${CONTEXT}_STANDARD_CLIENT_ID
+if [[ -z "$realm" ]]; then
+  default_realm_var="${context_key}_STANDARD_REALM"
+  realm="${!default_realm_var:-}"
+fi
+if [[ -z "$client_id" ]]; then
+  default_client_id_var="${context_key}_STANDARD_CLIENT_ID"
+  client_id="${!default_client_id_var:-}"
+fi
+
+check_required "realm" "$realm"
+check_required "client id" "$client_id"
+check_required "stage" "$stage"
+
+# Sanitize inputs and convert to uppercase so they form valid Bash variable names (hyphens, dots, etc.)
+realm_key="${realm//[^a-zA-Z0-9]/_}"
+realm_key="${realm_key^^}"
+client_id_key="${client_id//[^a-zA-Z0-9]/_}"
+client_id_key="${client_id_key^^}"
+stage_key="${stage//[^a-zA-Z0-9]/_}"
+stage_key="${stage_key^^}"
+
+if [[ "$quiet" == "false" ]]; then
+  echo -e "Fetching JWT token for context: ${context_key}, realm: ${realm_key}, client id: ${client_id_key}, stage: ${stage_key}\n" >&2
+fi
+
+# Concat variable names dynamically based on the context, realm, client id, and stage
+URL_VAR="${context_key}_${realm_key}_${client_id_key}_OIDC_TOKEN_URL_${stage_key}"
+CLIENT_ID_VAR="${context_key}_${realm_key}_${client_id_key}_OIDC_TOKEN_CLIENT_ID_${stage_key}"
+CLIENT_SECRET_VAR="${context_key}_${realm_key}_${client_id_key}_OIDC_TOKEN_CLIENT_SECRET_${stage_key}"
+
+# Error if any required environment variable is missing
+required_vars=(
+  "${URL_VAR}"
+  "${CLIENT_ID_VAR}"
+  "${CLIENT_SECRET_VAR}"
+)
+for var in "${required_vars[@]}"; do
+  if [[ -z "${!var:-}" ]]; then
+    echo "Error: Environment variable ${var} is not set." >&2
+    exit 2
+  fi
+done
+
+# Fetch the values of the required environment variables
+URL="${!URL_VAR}"
+CLIENT_ID="${!CLIENT_ID_VAR}"
+CLIENT_SECRET="${!CLIENT_SECRET_VAR}"
+
+# Fetch the JWT token. Credentials are passed in the POST body via
+# --data-urlencode so they are not exposed in the process list (ps/proc).
+# Capture the response body and HTTP status code together. The 'if !' guard
+# keeps a network-level failure (DNS, connection refused) from aborting under
+# 'set -e' before we can print a helpful message.
+if ! http_response=$(curl \
+  -s \
+  -w $'\n%{http_code}' \
+  -X POST \
+  --data-urlencode "grant_type=client_credentials" \
+  --data-urlencode "client_id=${CLIENT_ID}" \
+  --data-urlencode "client_secret=${CLIENT_SECRET}" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  "${URL}"); then
+  echo "Error: Could not reach token endpoint ${URL}." >&2
+  exit 6
+fi
+
+http_code="${http_response##*$'\n'}"
+body="${http_response%$'\n'*}"
+
+if [[ "$http_code" != "200" ]]; then
+  echo "Error: Token endpoint returned HTTP ${http_code}." >&2
+  echo "$body" >&2
+  exit 3
+fi
+
+# Extract the access_token; '// empty' yields an empty string when missing
+JWT_TOKEN=$(jq -r '.access_token // empty' <<<"$body")
+
+if [[ -z "${JWT_TOKEN}" ]]; then
+  echo "Error: No access_token in response." >&2
+  echo "$body" >&2
+  exit 4
+fi
+
+# Print the JWT token
+echo "${JWT_TOKEN}"
