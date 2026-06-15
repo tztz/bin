@@ -49,7 +49,7 @@ Options (omitted flags keep their defaults):
   -c <context>    Context to use (default: \$STANDARD_CONTEXT)
   -r <realm>      Realm to use (default: \$<CONTEXT>_STANDARD_REALM)
   -i <client id>  Client id to use (default: \$<CONTEXT>_STANDARD_CLIENT_ID)
-                  (<CONTEXT> is the uppercased -c value, e.g. RD)
+                  (<CONTEXT> is the uppercased -c value)
   -s <stage>      Stage to use (default: DEV)
   -q              Quiet mode: suppress the progress message on stderr
                   (the token is always printed alone on stdout)
