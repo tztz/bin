@@ -72,7 +72,7 @@ Exit codes:
   5  A required command (curl or jq) is not installed
   6  Could not reach the token endpoint (network-level failure)
 
-Made with love by mvz.
+Made with love by Mark Vz
 EOF
 }
 
