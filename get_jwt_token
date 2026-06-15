@@ -27,7 +27,7 @@ for cmd in curl jq; do
   fi
 done
 
-context="RD"
+context=""
 realm=""
 client_id=""
 stage="dev"
@@ -46,7 +46,7 @@ Fetch and echo a JWT token from an OIDC token endpoint (client credentials flow)
 ${USAGE_MSG}
 
 Options (omitted flags keep their defaults):
-  -c <context>    Context to use (default: RD)
+  -c <context>    Context to use (default: \$STANDARD_CONTEXT)
   -r <realm>      Realm to use (default: \$<CONTEXT>_STANDARD_REALM)
   -i <client id>  Client id to use (default: \$<CONTEXT>_STANDARD_CLIENT_ID)
                   (<CONTEXT> is the uppercased -c value, e.g. RD)
@@ -95,21 +95,26 @@ check_required() {
   local name="$1"
   local value="$2"
   if [[ -z "$value" ]]; then
-    echo "Error: $name not provided." >&2
+    echo "Error: $name not provided for context '${context}'." >&2
     usage
     exit 1
   fi
 }
 
-check_required "context" "$context"
+# If context, realm, or client id were not supplied via flags, fall back to the
+# default context (STANDARD_CONTEXT) resp. the context-specific defaults
+# (${CONTEXT}_STANDARD_REALM and ${CONTEXT}_STANDARD_CLIENT_ID)
 
-# The context is fixed once flags are parsed; sanitize and uppercase it so it forms a valid
-# Bash variable name (hyphens, dots, etc. become underscores)
+if [[ -z "$context" ]]; then
+  default_context_var="STANDARD_CONTEXT"
+  context="${!default_context_var:-}"
+fi
+
+# Sanitize context and convert to uppercase so it forms a valid Bash variable name,
+# also hyphens, dots, etc. are replaced by underscores
 context_key="${context//[^a-zA-Z0-9]/_}"
 context_key="${context_key^^}"
 
-# If realm or client id were not supplied via flags, fall back to the
-# context-specific defaults: ${CONTEXT}_STANDARD_REALM and ${CONTEXT}_STANDARD_CLIENT_ID
 if [[ -z "$realm" ]]; then
   default_realm_var="${context_key}_STANDARD_REALM"
   realm="${!default_realm_var:-}"
@@ -119,11 +124,13 @@ if [[ -z "$client_id" ]]; then
   client_id="${!default_client_id_var:-}"
 fi
 
+check_required "context" "$context"
 check_required "realm" "$realm"
 check_required "client id" "$client_id"
 check_required "stage" "$stage"
 
-# Sanitize inputs and convert to uppercase so they form valid Bash variable names (hyphens, dots, etc.)
+# Sanitize inputs and convert to uppercase so they form valid Bash variable names,
+# also hyphens, dots, etc. are replaced by underscores
 realm_key="${realm//[^a-zA-Z0-9]/_}"
 realm_key="${realm_key^^}"
 client_id_key="${client_id//[^a-zA-Z0-9]/_}"
